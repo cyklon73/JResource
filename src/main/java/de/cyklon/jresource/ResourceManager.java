@@ -5,6 +5,21 @@ import java.io.File;
 public interface ResourceManager {
 
 	/**
+	 * @return the Default Instance of the Resource Manager
+	 */
+	static ResourceManager getDefaultManager() {
+		return DefaultResourceManager.MANAGER;
+	}
+
+	/**
+	 * create a new Resource Manager
+	 * @return the new Resource Manager
+	 */
+	static ResourceManager createResourceManager() {
+		return new DefaultResourceManager();
+	}
+
+	/**
 	 * load a file resource from your resource directory
 	 * <p>
 	 * the path is also used as name

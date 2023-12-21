@@ -6,6 +6,8 @@ import java.util.Map;
 
 final class DefaultResourceManager implements ResourceManager {
 
+	static final ResourceManager MANAGER = new DefaultResourceManager();
+
 	private final Map<String, Resource> resourceMap;
 
 	public DefaultResourceManager() {
