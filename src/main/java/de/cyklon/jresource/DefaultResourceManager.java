@@ -1,8 +1,12 @@
 package de.cyklon.jresource;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 final class DefaultResourceManager implements ResourceManager {
 
@@ -13,6 +17,17 @@ final class DefaultResourceManager implements ResourceManager {
 	public DefaultResourceManager() {
 		this.resourceMap = new HashMap<>();
 	}
+
+	private String getKey(UUID uuid) {
+		return resourceMap
+				.entrySet()
+				.stream()
+				.filter(e -> e.getValue().getResourceID().equals(uuid))
+				.map(Map.Entry::getKey)
+				.findAny()
+				.orElse(null);
+	}
+
 	@Override
 	public Resource loadResource(String path) {
 		return loadResource(path, path);
@@ -30,12 +45,29 @@ final class DefaultResourceManager implements ResourceManager {
 
 	@Override
 	public Resource getResource(String name) {
-		return resourceMap.get(name);
+		return Optional.ofNullable(resourceMap.get(name)).orElseThrow();
+	}
+
+	@Override
+	public Resource getResource(UUID uuid) {
+		return resourceMap
+				.values()
+				.stream()
+				.filter(r -> r.getResourceID().equals(uuid))
+				.findFirst()
+				.orElseThrow();
 	}
 
 	@Override
 	public Resource unloadResource(String name) {
 		return resourceMap.remove(name);
+	}
+
+	@Override
+	public Resource unloadResource(UUID uuid) {
+		String key = getKey(uuid);
+		if (key==null) return null;
+		return resourceMap.remove(key);
 	}
 
 	@Override
@@ -45,9 +77,20 @@ final class DefaultResourceManager implements ResourceManager {
 		return resource.getType()== Resource.Type.INTERNAL ? loadResource(name, resource.getPath()) : loadExternalResource(name, resource.getFile());
 	}
 
+	@Override
+	public Resource reloadResource(UUID uuid) {
+		String key = getKey(uuid);
+		if (key==null) return null;
+		return reloadResource(key);
+	}
+
 	private Resource initResource(String name, String path, Resource.Type type) {
-		Resource r = new DefaultResource(this, name, path, type);
-		resourceMap.put(name, r);
-		return r;
+		try {
+			Resource resource = new DefaultResource(name, path, type);
+			resourceMap.put(name, resource);
+			return resource;
+		} catch (IOException | NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

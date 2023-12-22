@@ -1,6 +1,7 @@
 package de.cyklon.jresource;
 
 import java.io.File;
+import java.util.UUID;
 
 public interface ResourceManager {
 
@@ -54,6 +55,13 @@ public interface ResourceManager {
 	Resource getResource(String name);
 
 	/**
+	 * get a resource that has already been loaded with its unique id
+	 * @param uuid the unique id of the resource
+	 * @return the resource object
+	 */
+	Resource getResource(UUID uuid);
+
+	/**
 	 * unload a loaded resource
 	 * @param name the name of the resource to unload
 	 * @return the resource who was removed
@@ -61,9 +69,23 @@ public interface ResourceManager {
 	Resource unloadResource(String name);
 
 	/**
+	 * unload a loaded resource
+	 * @param uuid the unique id of the resource to unload
+	 * @return the resource who was removed
+	 */
+	Resource unloadResource(UUID uuid);
+
+
+	/**
 	 * reload a loaded resource
 	 * @param name the name of the resource to reload
 	 */
 	Resource reloadResource(String name);
+
+	/**
+	 * reload a loaded resource
+	 * @param uuid the unique id of the resource to reload
+	 */
+	Resource reloadResource(UUID uuid);
 
 }
