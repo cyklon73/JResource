@@ -14,4 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>https://maven.mineking.dev/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://maven.mineking.dev/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
