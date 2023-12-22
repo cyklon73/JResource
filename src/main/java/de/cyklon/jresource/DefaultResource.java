@@ -78,9 +78,9 @@ final class DefaultResource implements Resource {
 	@Override
 	public String getHash() throws IOException {
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
 			md.update(getBytes());
-			return String.format("%032x", new BigInteger(1, md.digest()));
+			return new BigInteger(1, md.digest()).toString(16);
 		} catch (NoSuchAlgorithmException ignored) {}
 		return null;
 	}
