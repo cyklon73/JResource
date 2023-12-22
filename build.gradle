@@ -1,9 +1,13 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group = 'de.cyklon'
 version = '1.0.1'
+
+var commit = getCommit()
+var release = System.getenv("RELEASE") == "true"
 
 repositories {
     mavenCentral()
@@ -14,6 +18,44 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://maven.mineking.dev/" + (release ? "releases" : "snapshots")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_SECRET")
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = "de.cyklon"
+            artifactId = "JResource"
+            version = release ? this.version : commit
+
+            from components.java
+        }
+    }
+}
+
 test {
     useJUnitPlatform()
+}
+
+static String getCommit() {
+    try {
+        var commit = 'git rev-parse --verify --short HEAD'.execute().text.trim()
+        return commit.isEmpty() ? 'unknown' : commit
+    } catch(IOException e) {
+        throw new RuntimeException(e)
+    }
 }
