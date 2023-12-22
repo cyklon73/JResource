@@ -1,5 +1,5 @@
 ![[Java CI]](https://github.com/Cyklon73/JResource/actions/workflows/check.yml/badge.svg)
-![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/cyklon/JResource?prefix=v&name=Latest%20Version)
+![[Latest Version]](https://maven.mineking.dev/api/badge/latest/releases/de/cyklon/JResource?prefix=v&name=Latest%20Version&color=0374b5)
 
 # Installation
 
