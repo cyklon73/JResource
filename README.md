@@ -23,7 +23,7 @@ dependencies {
 ```xml
 <repositories>
   <repository>
-    <id>mineking</id>
+    <id>cyklon</id>
     <url>https://maven.mineking.dev/releases</url>
   </repository>
 </repositories>
