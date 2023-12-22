@@ -1,10 +1,8 @@
 package de.cyklon.jresource;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
@@ -40,15 +38,13 @@ public interface Resource {
 
 	/**
 	 * @return the Resource URL
-	 * @throws MalformedURLException if the resource url is Malformed
 	 */
-	URL getURL() throws MalformedURLException;
+	URL getURL();
 
 	/**
 	 * @return a input stream of the resource
-	 * @throws FileNotFoundException if the resource file is not found
 	 */
-	InputStream getInputStream() throws FileNotFoundException;
+	InputStream getInputStream();
 
 	/**
 	 * each resource object has a unique id.
@@ -65,7 +61,7 @@ public interface Resource {
 	 * <p>
 	 * even if it's a different resource object, as long as it's the same resource the hash is the same
 	 */
-	String getHash() throws IOException;
+	String getHash();
 
 
 
@@ -89,7 +85,7 @@ public interface Resource {
 	/**
 	 * @return the bytes of the resource file
 	 */
-	byte[] getBytes() throws IOException;
+	byte[] getBytes();
 
 	public static enum Type {
 		INTERNAL,

@@ -2,7 +2,6 @@ package de.cyklon.jresource;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -10,24 +9,42 @@ import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 final class DefaultResource implements Resource {
-
-	private final ResourceManager manager;
 	private final String name;
 	private final String path;
 	private final Type type;
 	private final UUID uuid;
+	private final String fileName;
+	private final File file;
+	private final URL url;
+	private final String hash;
+	private final byte[] bytes;
 
 
-	public DefaultResource(ResourceManager manager, String name, String path, Type type) {
-		this(manager, name, path, type, UUID.randomUUID());
+	public DefaultResource(String name, String path, Type type) throws IOException, NoSuchAlgorithmException {
+		this(name, path, type, UUID.randomUUID());
 	}
 
-	public DefaultResource(ResourceManager manager, String name, String path, Type type, UUID uuid) {
-		this.manager = manager;
+	public DefaultResource(String name, String path, Type type, UUID uuid) throws IOException, NoSuchAlgorithmException {
 		this.name = name;
 		this.path = path;
 		this.type = type;
 		this.uuid = uuid;
+		this.file = new File(path);
+		this.fileName = file.getName();
+		this.url = type==Type.INTERNAL ? getClass().getClassLoader().getResource(path) : file.toURI().toURL();
+
+		try (InputStream in = type==Type.INTERNAL ? getClass().getClassLoader().getResourceAsStream(path) : new FileInputStream(file)) {
+			if (in==null) throw new FileNotFoundException("Resource file from resource " + name + " (" + uuid + ") not found. resource not loaded");
+			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+				in.transferTo(out);
+				this.bytes = out.toByteArray();
+			}
+		}
+
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		md.update(bytes);
+		this.hash = new BigInteger(1, md.digest()).toString(16);
+
 	}
 
 	@Override
@@ -47,27 +64,22 @@ final class DefaultResource implements Resource {
 
 	@Override
 	public String getFileName() {
-		return getFile().getName();
+		return fileName;
 	}
 
 	@Override
 	public File getFile() {
-		return new File(getPath());
+		return file;
 	}
 
 	@Override
-	public URL getURL() throws MalformedURLException {
-		return getType()==Type.INTERNAL ? getClass().getClassLoader().getResource(getPath()) : getFile().toURI().toURL();
+	public URL getURL() {
+		return url;
 	}
 
 	@Override
-	public InputStream getInputStream() throws FileNotFoundException {
-		InputStream in = getType()==Type.INTERNAL ? getClass().getClassLoader().getResourceAsStream(getPath()) : new FileInputStream(getFile());
-		if (in==null) {
-			manager.unloadResource(getName());
-			throw new FileNotFoundException("Resource file from resource " + getName() + " (" + getResourceID() + ") not found. this resource is unloaded");
-		}
-		return in;
+	public InputStream getInputStream() {
+		return new ByteArrayInputStream(bytes);
 	}
 
 	@Override
@@ -76,13 +88,8 @@ final class DefaultResource implements Resource {
 	}
 
 	@Override
-	public String getHash() throws IOException {
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			md.update(getBytes());
-			return new BigInteger(1, md.digest()).toString(16);
-		} catch (NoSuchAlgorithmException ignored) {}
-		return null;
+	public String getHash() {
+		return hash;
 	}
 
 	@Override
@@ -99,14 +106,7 @@ final class DefaultResource implements Resource {
 	}
 
 	@Override
-	public byte[] getBytes() throws IOException {
-		byte[] bytes;
-		try (InputStream in = getInputStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			byte[] buffer = new byte[4096];
-			int length;
-			while ((length = in.read(buffer)) >= 0) out.write(buffer, 0, length);
-			bytes = out.toByteArray();
-		}
+	public byte[] getBytes() {
 		return bytes;
 	}
 }
